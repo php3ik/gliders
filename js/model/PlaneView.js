@@ -1,11 +1,11 @@
 var PlaneView = function(plane, div, options) {
     this.div = div;
     this.r = new Rainbow();
-    this.r.setSpectrum('blue','yellow', 'red');
+    this.r.setSpectrum('white','blue','yellow','red','black');
     this.r.setNumberRange(0, 255)
     this.plane = plane;
     this.options = options || {};
-    this.pointWidth = this.options.pointWidth || 5;
+    this.pointWidth = this.options.pointWidth || 1;
     this.canvas = document.createElement('canvas');
     this.canvas.width = plane.width * this.pointWidth;
     this.canvas.height = plane.height * this.pointWidth;
@@ -23,7 +23,7 @@ PlaneView.prototype.drawPlane = function() {
     this.ctx.clearRect(0,0,this.canvas.width , this.canvas.height );
     for (var x = 0; x < this.plane.width; x++) {
         for (var y = 0; y < this.plane.height; y++) {
-            this.ctx.fillStyle = 'rgba(1,1,1,'+this.plane.points[x][y]+')';
+            this.ctx.fillStyle = '#'+this.r.colourAt(this.plane.points[x][y].height*255);
             this.ctx.fillRect(x*this.pointWidth, y*this.pointWidth, this.pointWidth, this.pointWidth);
         }
     }
@@ -43,7 +43,15 @@ PlaneView.prototype.iterate = function() {
 
 PlaneView.prototype.drawGliders = function() {
     for (var i = 0; i < this.gliders.length; i++) {
-        this.ctx.fillStyle = '#' + this.r.colourAt(this.gliders[i].unicVector*255);
-        this.ctx.fillRect(this.gliders[i].x*this.pointWidth,this.gliders[i].y*this.pointWidth, this.pointWidth, this.pointWidth);
+        this.ctx.beginPath();
+        this.ctx.fillStyle = '#' + this.r.colourAt((this.gliders[i].currentPointVec.height)*255);
+        this.ctx.arc(this.gliders[i].x*this.pointWidth, this.gliders[i].y*this.pointWidth, this.pointWidth/1.5, 10, 0, 2*Math.PI, false);
+        this.ctx.fill();
+        this.ctx.closePath();
+        var r = Math.random();
+        if (r > 0.98) {
+            this.gliders[i].x = Math.floor(Math.abs(Math.random() * this.plane.width-2));
+            this.gliders[i].y = Math.floor(Math.abs(Math.random() * this.plane.height-2))
+        }
     };
 };
